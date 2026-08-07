@@ -9,9 +9,9 @@ import pytest
 _test_db_file = tempfile.NamedTemporaryFile(suffix=".db", delete=False).name
 os.environ.setdefault("DATABASE_URL", f"sqlite:///{_test_db_file}")
 
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient  # noqa: E402
 
-from app.main import app
+from app.main import app  # noqa: E402
 
 
 @pytest.fixture(scope="session")
