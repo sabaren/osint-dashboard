@@ -164,4 +164,4 @@ GitHub Actions run on every push/PR:
 
 ## License
 
-MIT
+MIT © [Nicholaus Sabare](https://github.com/sabaren)
