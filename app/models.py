@@ -21,7 +21,9 @@ class Scan(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     domain = Column(String(255), nullable=False, index=True)
-    status = Column(String(20), default="pending")  # pending, running, completed, failed
+    status = Column(
+        String(20), default="pending"
+    )  # pending, running, completed, failed
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -29,9 +31,7 @@ class Scan(Base):
         "ScanResult", back_populates="scan", cascade="all, delete-orphan"
     )
 
-    __table_args__ = (
-        Index("idx_scan_domain_status", "domain", "status"),
-    )
+    __table_args__ = (Index("idx_scan_domain_status", "domain", "status"),)
 
 
 class ScanResult(Base):
@@ -48,6 +48,4 @@ class ScanResult(Base):
 
     scan = relationship("Scan", back_populates="results")
 
-    __table_args__ = (
-        Index("idx_result_scan_source", "scan_id", "source"),
-    )
+    __table_args__ = (Index("idx_result_scan_source", "scan_id", "source"),)

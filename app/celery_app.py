@@ -39,7 +39,11 @@ def scan_domain(self, domain: str, recursive: bool = False):
 
     db = SessionLocal()
     try:
-        scan = db.query(Scan).filter(Scan.domain == domain, Scan.status.in_(["pending", "running"])).first()
+        scan = (
+            db.query(Scan)
+            .filter(Scan.domain == domain, Scan.status.in_(["pending", "running"]))
+            .first()
+        )
         if not scan:
             scan = Scan(domain=domain, status="running")
             db.add(scan)
@@ -49,7 +53,9 @@ def scan_domain(self, domain: str, recursive: bool = False):
             scan.status = "running"
             db.commit()
 
-        self.update_state(state="PROGRESS", meta={"current": 0, "total": 5, "domain": domain})
+        self.update_state(
+            state="PROGRESS", meta={"current": 0, "total": 5, "domain": domain}
+        )
 
         from app.services import run_scan_for_domain
 
@@ -108,7 +114,12 @@ def weekly_backup():
                 "status": s.status,
                 "created_at": str(s.created_at),
                 "results": [
-                    {"source": r.source, "target": r.target, "data_type": r.data_type, "value": r.value}
+                    {
+                        "source": r.source,
+                        "target": r.target,
+                        "data_type": r.data_type,
+                        "value": r.value,
+                    }
                     for r in s.results
                 ],
             }

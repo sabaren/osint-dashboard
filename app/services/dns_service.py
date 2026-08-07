@@ -21,16 +21,27 @@ class DNSService:
                 answers = resolver.resolve(domain, rtype)
                 for rdata in answers:
                     value = str(rdata).strip().rstrip(".")
-                    results.append({
-                        "type": f"dns_{rtype.lower()}",
-                        "value": value,
-                        "extra": f'{{"ttl": {answers.rrset.ttl}}}',
-                    })
-            except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.exception.Timeout):
+                    results.append(
+                        {
+                            "type": f"dns_{rtype.lower()}",
+                            "value": value,
+                            "extra": f'{{"ttl": {answers.rrset.ttl}}}',
+                        }
+                    )
+            except (
+                dns.resolver.NoAnswer,
+                dns.resolver.NXDOMAIN,
+                dns.exception.Timeout,
+            ):
                 pass
             except Exception:
                 pass
 
         if not results:
-            return [{"type": "dns_info", "value": "No DNS records found or all queries timed out"}]
+            return [
+                {
+                    "type": "dns_info",
+                    "value": "No DNS records found or all queries timed out",
+                }
+            ]
         return results

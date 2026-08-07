@@ -37,10 +37,11 @@ async def create_scan(
 
     domain = domain.strip()
 
-    existing = db.query(Scan).filter(
-        Scan.domain == domain,
-        Scan.status.in_(["pending", "running"])
-    ).first()
+    existing = (
+        db.query(Scan)
+        .filter(Scan.domain == domain, Scan.status.in_(["pending", "running"]))
+        .first()
+    )
 
     if existing:
         return {"id": existing.id, "status": existing.status, "domain": existing.domain}
@@ -69,13 +70,16 @@ async def batch_scan(
     domain_list = [d.strip() for d in domains.split("\n") if d.strip()]
     results = []
     for domain in domain_list:
-        existing = db.query(Scan).filter(
-            Scan.domain == domain,
-            Scan.status.in_(["pending", "running"])
-        ).first()
+        existing = (
+            db.query(Scan)
+            .filter(Scan.domain == domain, Scan.status.in_(["pending", "running"]))
+            .first()
+        )
 
         if existing:
-            results.append({"domain": domain, "id": existing.id, "status": existing.status})
+            results.append(
+                {"domain": domain, "id": existing.id, "status": existing.status}
+            )
         else:
             scan = Scan(domain=domain, status="pending")
             db.add(scan)

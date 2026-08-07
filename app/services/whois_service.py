@@ -20,11 +20,19 @@ class WhoisService:
                 results.append({"type": "registrar", "value": str(w["registrar"])})
 
             if w.get("creation_date"):
-                dates = w["creation_date"] if isinstance(w["creation_date"], list) else [w["creation_date"]]
+                dates = (
+                    w["creation_date"]
+                    if isinstance(w["creation_date"], list)
+                    else [w["creation_date"]]
+                )
                 results.append({"type": "creation_date", "value": str(dates[0])})
 
             if w.get("expiration_date"):
-                dates = w["expiration_date"] if isinstance(w["expiration_date"], list) else [w["expiration_date"]]
+                dates = (
+                    w["expiration_date"]
+                    if isinstance(w["expiration_date"], list)
+                    else [w["expiration_date"]]
+                )
                 results.append({"type": "expiry_date", "value": str(dates[0])})
 
             if w.get("name_servers"):
@@ -43,6 +51,15 @@ class WhoisService:
                 for email in emails:
                     results.append({"type": "email", "value": str(email)})
 
-            return results if results else [{"type": "info", "value": "WHOIS data returned but no structured fields parsed"}]
+            return (
+                results
+                if results
+                else [
+                    {
+                        "type": "info",
+                        "value": "WHOIS data returned but no structured fields parsed",
+                    }
+                ]
+            )
         except Exception as e:
             return [{"type": "error", "value": f"WHOIS lookup failed: {e}"}]

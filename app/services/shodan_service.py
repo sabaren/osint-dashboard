@@ -29,11 +29,13 @@ class ShodanService:
                 for port in host.get("ports", []):
                     product = host.get("product", "unknown")
                     version = host.get("version", "")
-                    results.append({
-                        "type": "port",
-                        "value": str(port),
-                        "extra": f'{{"ip": "{host.get("ip_str", "")}", "product": "{product}", "version": "{version}"}}',
-                    })
+                    results.append(
+                        {
+                            "type": "port",
+                            "value": str(port),
+                            "extra": f'{{"ip": "{host.get("ip_str", "")}", "product": "{product}", "version": "{version}"}}',
+                        }
+                    )
             return results
         except requests.RequestException as e:
             return [{"type": "error", "value": f"Shodan request failed: {e}"}]

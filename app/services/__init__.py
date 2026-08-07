@@ -51,7 +51,7 @@ def run_scan_for_domain(scan_id: int, domain: str, recursive: bool, db, celery_t
                     subdomains_found.add(res["value"])
 
             if recursive and subdomains_found:
-                for sub in list(subdomains_found)[:settings.MAX_RECURSIVE_TARGETS]:
+                for sub in list(subdomains_found)[: settings.MAX_RECURSIVE_TARGETS]:
                     sub_db = SessionLocal()
                     try:
                         sub_results = svc.query(sub)
@@ -75,7 +75,7 @@ def run_scan_for_domain(scan_id: int, domain: str, recursive: bool, db, celery_t
             current += 1
             celery_task.update_state(
                 state="PROGRESS",
-                meta={"current": current, "total": total_services, "domain": domain}
+                meta={"current": current, "total": total_services, "domain": domain},
             )
             time.sleep(60 / svc.rate_limit)
 
@@ -85,5 +85,10 @@ def run_scan_for_domain(scan_id: int, domain: str, recursive: bool, db, celery_t
             current += 1
             celery_task.update_state(
                 state="PROGRESS",
-                meta={"current": current, "total": total_services, "domain": domain, "error": str(e)}
+                meta={
+                    "current": current,
+                    "total": total_services,
+                    "domain": domain,
+                    "error": str(e),
+                },
             )
