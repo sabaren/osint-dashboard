@@ -22,13 +22,13 @@ Professional, LAN-only domain reconnaissance dashboard visualizing attack surfac
                       │
 ┌─────────────────────▼───────────────────────────────┐
 │  FastAPI (HTMX + Jinja2 + Tailwind CDN)             │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐          │
-│  │ Scans    │  │ Dashboard│  │ Export   │          │
-│  │ Router   │  │ Router   │  │ Router   │          │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘          │
-│       │              │              │                │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐           │
+│  │ Scans    │  │ Dashboard│  │ Export   │           │
+│  │ Router   │  │ Router   │  │ Router   │           │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘           │
+│       │              │              │               │
 │  ┌────▼──────────────▼──────────────▼───────┐       │
-│  │  Services Layer                           │       │
+│  │  Services Layer                          │       │
 │  │  Shodan │ CRT.sh │ WHOIS │ VT │ DNS      │       │
 │  └──────────────────────────────────────────┘       │
 └─────────────────────┬───────────────────────────────┘
@@ -153,14 +153,6 @@ osint-dashboard/
     ├── __init__.py
     └── test_main.py
 ```
-
-## CI/CD
-
-GitHub Actions run on every push/PR:
-
-1. **Ruff** — linting
-2. **Black** — format check
-3. **Pytest** — unit tests
 
 ## License
 
