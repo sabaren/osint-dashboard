@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.database import get_session
-from app.models import Scan, ScanResult
+from app.models import Scan
 from app.celery_app import scan_domain
 
 router = APIRouter(prefix="/api/scans", tags=["scans"])
@@ -36,7 +36,6 @@ async def create_scan(
         raise HTTPException(status_code=400, detail="Domain is required")
 
     domain = domain.strip()
-    source_list = [s.strip() for s in sources.split(",") if s.strip()] if sources else None
 
     existing = db.query(Scan).filter(
         Scan.domain == domain,

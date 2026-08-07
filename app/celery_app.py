@@ -92,6 +92,7 @@ def weekly_backup():
     """Export all scan data to JSON backup."""
     import json
     import os
+    from datetime import datetime
     from app.database import SessionLocal
     from app.models import Scan
     from app.config import settings
