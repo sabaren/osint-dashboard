@@ -19,6 +19,7 @@ def test_db():
     """Create tables in the test database for the session."""
     from sqlalchemy import create_engine
     from app.database import Base
+
     engine = create_engine(os.environ["DATABASE_URL"], echo=False)
     Base.metadata.create_all(engine)
     return engine
@@ -28,6 +29,7 @@ def pytest_configure(config):
     """Create test DB tables before any tests run."""
     from sqlalchemy import create_engine
     from app.database import Base
+
     engine = create_engine(os.environ["DATABASE_URL"], echo=False)
     Base.metadata.create_all(engine)
 
