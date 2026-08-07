@@ -1,17 +1,17 @@
 # OSINT Intelligence Dashboard
 
-Professional, LAN-only domain reconnaissance dashboard visualizing attack surface data across multiple free-tier OSINT APIs.
+A domain reconnaissance tool for your local network. It queries free OSINT APIs and gives you a visual breakdown of what's out there for each domain you scan.
 
-## Features
+## What it does
 
-- **5 Data Sources**: Shodan, CRT.sh, WHOIS, VirusTotal, Google DNS
-- **Recursive Subdomain Discovery** (2-level depth cap)
-- **Batch Scanning** — scan multiple domains simultaneously
-- **Real-time Progress** — HTMX-powered live scan status updates
-- **Interactive Visualizations** — Chart.js doughnut, bar, and timeline charts
-- **4 Export Formats** — CSV, JSON, Markdown, Styled PDF (via WeasyPrint)
-- **90-Day Data Retention** with automatic weekly JSON backups
-- **Dark-mode UI** — Tailwind CSS, mobile-responsive
+- Queries 5 sources: Shodan, CRT.sh, WHOIS, VirusTotal, Google DNS
+- Follows subdomains recursively (stops at 2 levels)
+- Batch scanning — throw multiple domains at once
+- Live progress updates via HTMX (no page reloads)
+- Charts: doughnut, bar, and timeline views powered by Chart.js
+- Export to CSV, JSON, Markdown, or styled PDF (WeasyPrint)
+- Keeps data for 90 days, with weekly JSON backups
+- Dark-mode UI, mobile-responsive, Tailwind CSS
 
 ## Architecture
 
@@ -38,12 +38,12 @@ Professional, LAN-only domain reconnaissance dashboard visualizing attack surfac
 └─────────────────────────────────────────────────────┘
 ```
 
-## Quick Start
+## Quick start
 
 ### Prerequisites
 
 - Docker + Docker Compose
-- API keys for [Shodan](https://account.shodan.io/) and [VirusTotal](https://www.virustotal.com/gui/my-apikey) (optional)
+- API keys for [Shodan](https://account.shodan.io/) and [VirusTotal](https://www.virustotal.com/gui/my-apikey) (optional — the dashboard works without them)
 
 ### Setup
 
@@ -55,65 +55,65 @@ nano .env  # Fill in your API keys
 # 2. Build and start
 make up
 
-# 3. Access the dashboard
+# 3. Open the dashboard
 open http://localhost
 ```
 
-### Makefile Commands
+### Makefile commands
 
-| Command | Description |
+| Command | What it does |
 |---|---|
 | `make up` | Build and start all services |
-| `make down` | Stop all containers |
+| `make down` | Stop everything |
 | `make logs` | Follow web service logs |
 | `make test` | Run pytest |
-| `make lint` | Run Ruff linter |
-| `make format` | Run Black formatter |
-| `make backup` | Trigger manual JSON backup |
+| `make lint` | Run Ruff |
+| `make format` | Run Black |
+| `make backup` | Trigger a manual JSON backup |
 | `make clean` | Remove containers, images, volumes |
 
 ## Configuration
 
-Edit `.env` to customize:
+Edit `.env` after copying from `.env.example`:
 
 ```ini
-# API Keys
+# API Keys — optional but recommended
 SHODAN_API_KEY=your_key_here
 VIRUSTOTAL_API_KEY=your_key_here
 
-# Rate Limits (requests/min)
+# Rate limits (requests/min)
 SHODAN_RATE_LIMIT=1
 VIRUSTOTAL_RATE_LIMIT=4
 CRT_RATE_LIMIT=10
 
-# Recursion
+# How deep to recurse on subdomains
 MAX_RECURSION_DEPTH=2
 
-# Retention
+# Data retention
 RETENTION_DAYS=90
 BACKUP_DIR=/path/to/backups
 ```
 
 ## Deployment
 
-### Deployment
+Run it on any machine with Docker:
 
 ```bash
 cd /path/to/osint-dashboard
 make up -d
 
-# Access from any LAN machine
-# http://<your-server-ip>
+# Open from any LAN device
+# http://<server-ip>
 ```
 
-### Production Considerations
+### Things to keep in mind
 
-- **Auth**: The dashboard assumes LAN trust. Add authentication if exposing externally.
-- **Database**: SQLite works for single-user. Migrate to PostgreSQL for multi-user.
-- **Backups**: Weekly JSON exports are scheduled via Celery Beat.
-- **Rate Limits**: Adjust `.env` limits based on your API tier.
+- **Auth:** This was built for LAN-only use. If you expose it externally, add authentication first.
+- **Database:** SQLite is fine for a single user. Switch to PostgreSQL if multiple people will be running scans at once.
+- **Backups:** Celery Beat handles weekly JSON exports automatically.
+- **Rate limits:** Tweak the `.env` values based on your API tier.
 
-## Project Structure
+## Project structure
 
 ```
 osint-dashboard/
@@ -156,4 +156,4 @@ osint-dashboard/
 
 ## License
 
-MIT © [Nicholaus Sabare](https://github.com/sabaren)
+MIT — [Nicholaus Sabare](https://github.com/sabaren)
