@@ -96,15 +96,14 @@ BACKUP_DIR=/path/to/backups
 
 ## Deployment
 
-### LAN Deployment (Ubuntu)
+### Deployment
 
 ```bash
-# On your Ubuntu server (e.g., 192.168.68.50)
 cd /path/to/osint-dashboard
 make up -d
 
 # Access from any LAN machine
-# http://192.168.68.50
+# http://<your-server-ip>
 ```
 
 ### Production Considerations
