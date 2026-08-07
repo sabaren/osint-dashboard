@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}OSINT Dashboard — Intelligence Hub{% endblock %}
+
+{% block content %}
+<!-- Hero / Search -->
+<div class="hero slide-in">
+    <h1>Threat Intelligence Dashboard</h1>
+    <p>Enter a domain to gather open-source intelligence from CRT.sh, WHOIS, VirusTotal, and DNS records.</p>
+</div>
+
+<!-- Search Form -->
+<div class="search-form slide-in">
+    <form hx-post="/api/scans/" hx-target="#scan-status" hx-swap="innerHTML" class="search-row">
+        <input
+            type="text"
+            name="domain"
+            placeholder="example.com"
+            required
+            class="search-input"
+        >
+        <label class="checkbox-toggle">
+            <input type="checkbox" name="recursive">
+            <span>Recursive</span>
+        </label>
+        <button type="submit" class="btn">
+            Scan
+        </button>
+    </form>
+    <div id="scan-status" class="scan-status-display"></div>
+</div>
+
+<!-- Quick Batch -->
+<div class="search-form slide-in">
+    <form hx-post="/api/scans/batch" hx-target="#batch-status" hx-swap="innerHTML" class="search-row">
+        <textarea
+            name="domains"
+            placeholder="one.com&#10;two.com&#10;three.com"
+            rows="3"
+            class="batch-textarea"
+        ></textarea>
+        <div class="flex flex-col gap-2">
+            <button type="submit" class="btn btn-secondary">
+                Batch Scan
+            </button>
+            <a href="/batch" class="navbar-link text-center">Advanced →</a>
+        </div>
+    </form>
+    <div id="batch-status" class="scan-status-display"></div>
+</div>
+
+<!-- Recent Scans -->
+<div class="mt-8 slide-in">
+    <h2>Recent Scans</h2>
+    {% if scans %}
+    <div class="glass-box">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Domain</th>
+                    <th>Status</th>
+                    <th>Results</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in scans %}
+                <tr>
+                    <td class="mono"><a href="/scan/{{ scan.id }}">{{ scan.domain }}</a></td>
+                    <td>
+                        {% if scan.status == "completed" %}
+                            <span class="badge badge-completed">Completed</span>
+                        {% elif scan.status == "running" %}
+                            <span class="badge badge-running">Running</span>
+                        {% elif scan.status == "failed" %}
+                            <span class="badge badge-failed">Failed</span>
+                        {% else %}
+                            <span class="badge badge-pending">{{ scan.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ scan.results|length }}</td>
+                    <td class="text-sm">{{ scan.created_at.strftime('%Y-%m-%d %H:%M') if scan.created_at else '—' }}</td>
+                    <td>
+                        <a href="/scan/{{ scan.id }}" class="navbar-link">View</a>
+                        {% if scan.status == "completed" %}
+                            <a href="/api/export/{{ scan.id }}/pdf" class="navbar-link">PDF</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <p>No scans yet. Enter a domain above to start.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Stats Cards -->
+{% if scans %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Scans</div>
+        <div class="stat-value">{{ scans|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Unique Domains</div>
+        <div class="stat-value">{{ scans|map(attribute='domain')|unique|list|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Data Sources</div>
+        <div class="stat-value">5</div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

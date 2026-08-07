@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Scan — OSINT Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-8 slide-in">
+        <a href="/" class="scan-header-back navbar-link">← Back to Dashboard</a>
+        <h1>Batch Scan</h1>
+        <p>Scan multiple domains at once. Enter one domain per line.</p>
+    </div>
+
+    <div class="glass-box mb-6">
+        <div class="glass-box-body">
+            <form hx-post="/api/scans/batch" hx-target="#batch-status" hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-3">
+                    <label class="text-sm font-medium" style="color: var(--colour1);">Domains (one per line)</label>
+                    <button type="button" onclick="pasteFromFile()" class="navbar-link">📋 Paste from file</button>
+                </div>
+                <textarea
+                    name="domains"
+                    id="batch-domains"
+                    placeholder="example.com&#10;evil.com&#10;malware.net"
+                    rows="12"
+                    class="batch-textarea"
+                ></textarea>
+
+                <div class="flex items-center justify-between mt-4">
+                    <div class="flex items-center gap-4">
+                        <label class="checkbox-toggle">
+                            <input type="checkbox" name="recursive">
+                            <span>Recursive subdomain expansion</span>
+                        </label>
+                    </div>
+                    <div class="flex gap-3">
+                        <a href="/" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn">
+                            Launch Batch Scan
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <div id="batch-status" class="scan-status-display mt-4"></div>
+        </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="glass-box">
+        <div class="glass-box-body">
+            <h3>Tips</h3>
+            <div class="space-y-2" style="font-size: 12px; color: var(--colour1);">
+                <p>• Max 50 domains per batch to respect API rate limits</p>
+                <p>• Recursive scans expand subdomains up to <strong style="color: var(--colour2);">2 levels deep</strong></p>
+                <p>• Each source has configurable rate limits — check your <code class="mono-tag">.env</code></p>
+                <p>• Batch jobs run asynchronously — results appear in the dashboard as they complete</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function pasteFromFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.txt,.csv';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        file.text().then(text => {
+            const textarea = document.getElementById('batch-domains');
+            textarea.value = text;
+            textarea.dispatchEvent(new Event('input'));
+        });
+    };
+    input.click();
+}
+</script>
+{% endblock %}

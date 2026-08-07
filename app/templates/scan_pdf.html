@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OSINT Report - {{ scan.domain }}</title>
+    <style>
+        /* ── Base ── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            color: #1a1a1a;
+            line-height: 1.5;
+            font-size: 10pt;
+            padding: 24px 32px;
+        }
+
+        /* ── CRITICAL: text wrapping for long content ── */
+        .break-word {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            hyphens: auto;
+            max-width: 100%;
+        }
+
+        table, th, td {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        td {
+            max-width: 200px;
+        }
+
+        /* ── Header ── */
+        .report-header {
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        .report-header h1 {
+            font-size: 18pt;
+            color: #003366;
+            margin-bottom: 4px;
+        }
+
+        .report-meta {
+            font-size: 9pt;
+            color: #555;
+        }
+
+        /* ── Summary ── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+
+        .summary-card .label {
+            font-size: 8pt;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-card .value {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #003366;
+        }
+
+        /* ── Results Table ── */
+        h2 {
+            font-size: 12pt;
+            color: #003366;
+            margin-bottom: 8px;
+            margin-top: 16px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 4px;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt;
+        }
+
+        .results-table thead {
+            background: #003366;
+            color: white;
+        }
+
+        .results-table th {
+            padding: 6px 8px;
+            text-align: left;
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .results-table td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+
+        .results-table tbody tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .source-tag {
+            display: inline-block;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 7pt;
+            font-family: monospace;
+            background: #e8f4fc;
+            color: #0066cc;
+            border: 1px solid #b8d8f0;
+        }
+
+        /* ── Page Break ── */
+        @page {
+            size: A4;
+            margin: 1.5cm 1.5cm;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        /* ── Footer ── */
+        .report-footer {
+            margin-top: 32px;
+            padding-top: 8px;
+            border-top: 1px solid #ddd;
+            font-size: 7pt;
+            color: #888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="report-header">
+        <h1>OSINT Report: {{ scan.domain }}</h1>
+        <div class="report-meta">
+            Scan #{{ scan.id }} &middot; Generated {{ scan.created_at.strftime('%Y-%m-%d %H:%M UTC') if scan.created_at else '—' }}
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="label">Total Findings</div>
+            <div class="value">{{ results|length }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Data Sources</div>
+            <div class="value">{{ results_by_source|length }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Finding Types</div>
+            <div class="value">{{ results_by_type|length }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Targets</div>
+            <div class="value">{{ results|map(attribute='target')|unique|list|length }}</div>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <h2>Findings ({{ results|length }})</h2>
+    <table class="results-table">
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Type</th>
+                <th>Target</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in results %}
+            <tr>
+                <td><span class="source-tag">{{ r.source }}</span></td>
+                <td class="break-word">{{ r.data_type }}</td>
+                <td class="break-word">{{ r.target }}</td>
+                <td class="break-word">{{ r.value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="report-footer">
+        Generated by OSINT Dashboard &middot; {{ scan.domain }}
+    </div>
+</body>
+</html>

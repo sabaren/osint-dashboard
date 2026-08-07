@@ -1,0 +1,32 @@
+# === Env ===
+.env
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+
+# === Database ===
+*.db
+*.sqlite
+*.sqlite3
+
+# === Backups ===
+backups/
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log

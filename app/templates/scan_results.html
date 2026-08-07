@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+    .result-row:hover { background: rgba(0, 191, 255, 0.08); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="scan-header slide-in">
+    <div>
+        <a href="/" class="scan-header-back navbar-link">← Back to Dashboard</a>
+        <h1 class="scan-header-title">{{ scan.domain }}</h1>
+        <div class="scan-header-meta">
+            <span>Scan #{{ scan.id }}</span>
+            <span>•</span>
+            <span>{{ scan.created_at.strftime('%Y-%m-%d %H:%M UTC') if scan.created_at else '—' }}</span>
+            {% if scan.status == "completed" %}
+                <span class="badge badge-completed">Completed</span>
+            {% elif scan.status == "running" %}
+                <span class="badge badge-running">Running</span>
+            {% else %}
+                <span class="badge badge-pending">{{ scan.status }}</span>
+            {% endif %}
+        </div>
+    </div>
+    {% if scan.status == "completed" %}
+    <div class="scan-actions">
+        <a href="/api/export/{{ scan.id }}/csv" class="btn btn-secondary btn-sm">CSV</a>
+        <a href="/api/export/{{ scan.id }}/json" class="btn btn-secondary btn-sm">JSON</a>
+        <a href="/api/export/{{ scan.id }}/md" class="btn btn-secondary btn-sm">Markdown</a>
+        <a href="/api/export/{{ scan.id }}/pdf" class="btn btn-sm">PDF</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Summary Cards -->
+<div class="stats-grid mb-8">
+    <div class="stat-card">
+        <div class="stat-label">Total Findings</div>
+        <div class="stat-value">{{ results|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Data Sources</div>
+        <div class="stat-value">{{ results_by_source|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Finding Types</div>
+        <div class="stat-value">{{ results_by_type|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Targets</div>
+        <div class="stat-value">{{ results|map(attribute='target')|unique|list|length }}</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-grid">
+    <div class="chart-container">
+        <h3>Findings by Source</h3>
+        <canvas id="sourceChart" height="200"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>Findings by Type</h3>
+        <canvas id="typeChart" height="200"></canvas>
+    </div>
+</div>
+
+<!-- Results Table -->
+<div class="glass-box slide-in">
+    <div class="glass-box-header">
+        <h2>All Results</h2>
+        <span class="mono-tag">{{ results|length }} findings</span>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <button onclick="filterResults('all')" class="filter-btn active" data-filter="all">All</button>
+        {% for source in results_by_source.keys() %}
+        <button onclick="filterResults('{{ source }}')" class="filter-btn" data-filter="{{ source }}">{{ source }}</button>
+        {% endfor %}
+    </div>
+
+    <table class="data-table" id="resultsTable">
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Type</th>
+                <th>Target</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in results %}
+            <tr class="result-row" data-source="{{ r.source }}">
+                <td>
+                    <span class="mono-tag">{{ r.source }}</span>
+                </td>
+                <td class="text-sm">{{ r.data_type }}</td>
+                <td class="mono text-sm">{{ r.target }}</td>
+                <td class="text-sm max-w-md truncate" title="{{ r.value }}">{{ r.value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Running scan animation -->
+{% if scan.status == "running" %}
+<div hx-get="/api/scans/{{ scan.id }}" hx-trigger="every 5s" hx-target="#scan-status" class="spinner-row">
+    <div class="spinner"></div>
+    <span>Scan in progress — refreshing...</span>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/charts.js"></script>
+<script>
+    // Source chart
+    const sourceData = {{ results_by_source|tojson }};
+    if (sourceData) {
+        new Chart(document.getElementById('sourceChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(sourceData).map(s => s.replace('_', ' ')).map(s => s.charAt(0).toUpperCase() + s.slice(1)),
+                datasets: [{
+                    data: Object.values(sourceData),
+                    backgroundColor: ['#68e1ff', '#a8fff0', '#00bfff', '#00abe5', '#0067a7', '#004774'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#68e1ff', padding: 15 } }
+                }
+            }
+        });
+    }
+
+    // Type chart
+    const typeData = {{ results_by_type|tojson }};
+    if (typeData) {
+        new Chart(document.getElementById('typeChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(typeData).map(t => t.replace('_', ' ')),
+                datasets: [{
+                    label: 'Count',
+                    data: Object.values(typeData),
+                    backgroundColor: '#00bfff',
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#68e1ff' }, grid: { color: 'rgba(0, 42, 53, 0.4)' } },
+                    x: { ticks: { color: '#68e1ff' }, grid: { display: false } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    // Filter function
+    function filterResults(source) {
+        const rows = document.querySelectorAll('.result-row');
+        const btns = document.querySelectorAll('.filter-btn');
+        btns.forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        rows.forEach(row => {
+            if (source === 'all' || row.dataset.source === source) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

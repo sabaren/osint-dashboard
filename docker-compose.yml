@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: osint-web
+    ports:
+      - "19000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app
+      - db-data:/app/data
+    depends_on:
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+  worker:
+    build: .
+    container_name: osint-worker
+    env_file:
+      - .env
+    volumes:
+      - db-data:/app/data
+    depends_on:
+      - redis
+    command: celery -A app.celery_app.celery_app worker --loglevel=info --concurrency=${CELERY_WORKER_CONCURRENCY:-4}
+    restart: unless-stopped
+
+  beat:
+    build: .
+    container_name: osint-beat
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    command: celery -A app.celery_app.celery_app beat --loglevel=info
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: osint-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: osint-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  redis-data:
