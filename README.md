@@ -11,7 +11,7 @@ A domain reconnaissance tool for your local network. It queries free OSINT APIs 
 - Charts: doughnut, bar, and timeline views powered by Chart.js
 - Export to CSV, JSON, Markdown, or styled PDF (WeasyPrint)
 - Keeps data for 90 days, with weekly JSON backups
-- Dark-mode UI, mobile-responsive, Tailwind CSS
+- Mobile-responsive, Tailwind CSS
 
 ## Architecture
 
