@@ -1,4 +1,4 @@
-# OSINT Intelligence Dashboard
+# OSINT Domain Scanning Dashboard
 
 A domain reconnaissance tool for your local network. It queries free OSINT APIs and gives you a visual breakdown of what's out there for each domain you scan.
 
